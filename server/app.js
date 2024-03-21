@@ -7,9 +7,9 @@ const path = require('path');
 const app = express();
 
 app.use(session({
-	secret: 'secret',
-	resave: true,
-	saveUninitialized: true
+    secret: 'secret',
+    resave: true,
+    saveUninitialized: true
 }));
 
 app.use(express.json());
@@ -33,18 +33,22 @@ router.post("/getdetails", (req, res) => {
     console.log(username);
     console.log(password);
 
-    db.query(`SELECT * FROM users WHERE username='${username}' AND password='${password}'`, [username, password], (err, result) => {
-        if (err) {
-            res.status(500).send({ message: "Internal server error" });
-            console.error(err);
-        } else {
-            if (result.length > 0) {
-                res.status(200).send(result);
+    db.query(
+        "SELECT * FROM users WHERE username = ? AND password = ?",
+        [username, password],
+        (err, result) => {
+            if (err) {
+                res.status(500).send({ message: "Internal server error" });
+                console.error(err);
             } else {
-                res.status(401).send({ message: "Wrong username/password combination!" });
+                if (result.length > 0) {
+                    res.status(200).send(result);
+                } else {
+                    res.status(401).send({ message: "Wrong username/password combination!" });
+                }
             }
         }
-    });
+    );
 });
 
 app.use("/users", router);
@@ -52,5 +56,3 @@ app.use("/users", router);
 app.listen(3001, () => {
     console.log("Server has started on port 3001");
 });
-
-
